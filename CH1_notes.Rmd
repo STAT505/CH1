@@ -1,0 +1,222 @@
+---
+title: "Regression and Other Stories: Ch 1.1 - 1.4"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) 
+library(rstanarm)
+set.seed(08192020)
+```
+
+
+## Regression and Other Stories
+
+__Why this book?__ This book, and the precursor (ARM), are on the applied end of the spectrum, but they "focus on understanding regression models and applying them to real problems."
+
+The first few weeks of the course will parallel Part I in ROS, which focuses on key tools and concepts in mathematics, _statistics_, and _computing_.
+
+ There will be additional examples and details in the textbook. Furthermore, the textbook web page has code and data ([https://avehtari.github.io/ROS-Examples/](https://avehtari.github.io/ROS-Examples/)) to replicate examples in the textbook.
+
+Initially we will focus on challenges pertaining to statistical inference and regression modeling with an emphasis on predictive models (as opposed to casual models). ROS lists four key skills:
+
+
+\vfill
+
+
+
+\vfill
+
+
+
+\vfill
+
+
+
+\vfill
+
+
+
+### Why Statistics
+
+__Q:__ Why are we here? Why study Statistics?
+
+
+
+\vfill
+
+ROS details three challenges of statistical inference. __Q__: What does inference mean? 
+
+
+\vfill
+
+
+\vfill
+
+
+\vfill
+
+Each of these challenges can be formulated through the lens of prediction (new observations, future outcomes, etc..) although the third challenge does require valid measurements pertaining to the construct of interest.
+
+\vfill
+
+\newpage
+
+
+### Regression
+Using ROS language, 
+\vfill
+
+Note this is different than casual language, which might be summarized as "regression is a method that allows researchers to summarize how changing a value of a predictor causes an outcome to change."
+
+\vfill
+
+Using the antibody data that we have previously seen, a regression model can be visualized as:
+
+```{r, message = F}
+read_csv("http://math.montana.edu/ahoegh/Data/Covid_3a.csv") %>% 
+  ggplot(aes(y = `IgG S/CO`, x = `IgM S/CO`, color = Group)) + 
+  geom_point() + theme_bw() + facet_wrap(.~ Group) +
+  geom_smooth(method = 'lm', formula = "y ~ x") +
+  ggtitle("Antibody measurements from 'Clinical and immunological 
+  assessment of asymptomatic SARS-CoV-2 infections'") + 
+  theme(legend.position = "none")
+```
+
+\vfill
+
+This will be one of the first of many figures that we create. 
+
+\newpage
+
+A formal regression model associated with the asymptomatic patients can also be specified in R.
+
+```{r, message = F, warning = F}
+covid <- read_csv("http://math.montana.edu/ahoegh/Data/Covid_3a.csv") 
+asymptomatic <- covid %>% filter(Group == "Asymptomatic") %>%
+  rename(IgG = `IgG S/CO`, IgM = `IgM S/CO`)
+lm_fit <- lm(IgG ~ IgM, data =asymptomatic)
+summary(lm_fit)
+```
+\vfill
+
+__Q: Interpret the output here.__
+
+\vfill
+
+```{r, message = F, warning = F}
+stan_fit <- stan_glm(IgG ~ IgM, data =asymptomatic, refresh = 0)
+print(stan_fit)
+```
+
+\vfill
+
+__Q: Now, how do we interpret this output? Where are the p-values?__
+\newpage
+
+#### What can we do with regression?
+
+- Prediction: 
+
+\vfill
+
+- Exploring Associations: 
+
+\vfill
+
+- Extrapolation: 
+
+\vfill
+
+- Causal Inference: 
+
+\vfill
+
+For any of the settings, the model needs to be a reasonable approximation of reality. To summarize the George Box quote, "all models are wrong, but some are useful." In other words, the model needs to have enough complexity to capture all of the necessary information.
+
+\vfill
+
+### Regression Interpretations
+
+
+There are two common ways regression can be used for causal inference: 
+
+\vfill
+
+#### Estimating a relationship
+
+For causal inference, 
+
+\vfill
+
+The easiest way to establish comparable groups is to use 
+
+\vfill
+
+Given a treatment $x$ and an outcome $y$, which can be continuous or categorical, 
+
+\vfill
+ 
+One way to model this with an 
+
+\vfill
+
+\newpage
+
+#### Controlling for Differences
+
+In many scenarios, the units that receive different treatments may vary. 
+
+\vfill
+
+So the goal is to adjust for the differences in the experimental units before assigning and applying the treatments. This difference is often referred to as 
+
+\vfill
+
+A regression model can be used to adjust for pre-treatment differences.
+
+\vfill
+#### Coefficients in Predictive Models
+
+Even if the goal is just prediction, interpreting regression coefficients can be tricky. Consider a dataset consisting of the volume of beer consumed in Sao Paulo, Brazil. For more information about the data, see [https://www.kaggle.com/dongeorge/beer-consumption-sao-paulo](https://www.kaggle.com/dongeorge/beer-consumption-sao-paulo). We will work on a cleaned dataset that contains:
+
+- consumed: daily volume of beer consumed in liters
+- precip: daily precipitation in (mm)
+- max_tmp: daily maximum temperature in C
+- weekend: indicator variable for if the day is a weekend.
+
+\vfill
+
+It is not obvious how the data was collected, but here is a note from the data provider: "The data (sample) were collected in São Paulo, Brazil, in a university area, where there are some parties with groups of students from 18 to 28 years of age (average)."
+\vfill
+
+```{r, message = F}
+beer <- read_csv('http://math.montana.edu/ahoegh/Data/Brazil_cerveja.csv')
+```
+
+
+Let's explore the relationship between maximum daily temperature and liters of beer consumed. 
+\vfill
+_Q:_ What is the association between temperature and beer consumption?
+
+\vfill
+\newpage
+
+```{r, echo = F}
+beer %>% ggplot(aes(y = consumed, x = max_tmp)) +
+  geom_jitter(width = .25, alpha = .5) + ylab('liters of cerveja consumed') + 
+  xlab('Maximum Temperature (Celsius)') + ggtitle('Cerveja consumed vs. Maximum Temperature') + 
+  ylim(0, max(beer$consumed)+1) + geom_smooth(method ='lm')
+
+``` 
+
+```{r}
+stan_glm(consumed ~ max_tmp, data = beer, refresh = 0) %>% print(digits = 2)
+```
+
+\newpage
+
+_Q:_ can we say that each degree _causes_ 0.66 ($\pm .8$) more liters of beer to be consumed?
+\vfill
+
