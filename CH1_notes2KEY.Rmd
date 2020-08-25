@@ -1,0 +1,137 @@
+---
+title: "Regression and Other Stories: Ch 1.4 - 1.6"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) 
+library(rstanarm)
+set.seed(08252020)
+```
+
+
+### Building, interpreting, and checking regression models
+
+The authors present four cycles for an iterative data analysis process:
+
+\vfill
+
+1. Model Building: *start with simple linear regression and expanding to include additional predictors, transformations, and interactions.*
+
+\vfill
+
+2. Model Fitting: *writing code to estimate regression coefficients and uncertainties*
+
+\vfill
+
+3. Understanding model fits: *data visualization, investigation of connection between data and model fits*
+
+\vfill
+
+4. Criticism: *finding flaws, questionable assumptions and considering improvements to the model or summarizing the limitations and claims that can be made from the model.*
+
+\vfill
+
+## Classical and Bayesian Inference
+
+Model fitting can be done in different ways... With any approach there are three considerations:
+
+\vfill
+
+1. *information: what is used for estimation*
+
+\vfill
+
+2. *assumptions*
+
+\vfill
+
+3. *interpretation*
+
+\vfill
+
+\newpage
+
+#### Information
+
+Information pertains to what *data is used to estimate the model, how that data was collected, and whether prior knowledge exists about the data.*
+
+#### Assumptions
+
+The authors discuss three basic assumptions that underlay a regression model
+
+1. *functional form of the relationship between $x$ and $y$, for instance $y = x\beta + \epsilon$*
+ 
+\vfill
+
+2. *where the data comes from: sample/observational study, non-response, etc..*
+
+\vfill
+
+3. *real world relevance of the measured data: are responses accurate, can responses be generalized to other settings, places, times...*
+
+\vfill
+
+*I'd probably add a fourth assumption about the distributional nature of the responses -- more later*.
+
+\vfill
+
+#### Interpretation
+
+\vfill
+
+__Classical (or frequentist) Inference:__ This approach summarize the data *(not including prior opinions) to get estimates with well understood statistical properties, low bias and low variance.*
+
+\vfill
+
+The results and interpretation are based long-run expectations of the methods that are correct on average (unbiased) and confidence intervals that contain the true parameter the appropriate percent of the time (coverage). *However, the interpretation about a single study can be tricky (see STAT 216).*
+
+\vfill
+
+Classical methods do tend to be conservative, in that strong statements are not make with _weak_ data. *Classical methods do have a clear objective path, assuming assumptions are checked and frequency properties are a reasonable solution.*
+
+\vfill
+
+*Inference is largely driven by Null Hypothesis Significance Testing (NHST) and p-values.*
+
+
+\newpage
+
+__Bayesian Inference:__ This approach summarize the data *and includes existing prior information.*
+
+\vfill
+
+Results and interpretations are probabilistic *(e.g. The probability that the parameter is in the interval is 95 %.) can be summarized by simulation*
+
+\vfill
+
+Bayesian inference uses additional information which can potentially give more reasonable results (using the prior to regularize the model), *but specifying the prior information requires additional assumptions and can be subjective.*
+
+\vfill
+
+*Inference is largely summarized using posterior distributions of parameters.*
+
+### Computing
+
+Classical methods tend to use least-squares estimation (or maximum likelihood). 
+
+```{r}
+beer <- read_csv('http://math.montana.edu/ahoegh/Data/Brazil_cerveja.csv')
+lm_beer <- lm(consumed ~ max_tmp, data = beer)
+summary(lm_beer)
+```
+
+\newpage
+
+The textbook authors (and your instructor), recommend using Bayesian inference for regression. *Others here, and elsewhere, may be more familiar with the classical methods. So we will still consider both throughout the class.*
+
+\vfill
+
+Furthermore, using Bayesian methods with _weakly informative_ prior information enables stable estimates and simulation based inference, but also can result (or approximately result) in frequentist solutions.
+
+\vfill
+
+```{r}
+stan_glm(consumed ~ max_tmp, data = beer, refresh = 0) %>% print()
+```

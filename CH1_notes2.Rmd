@@ -1,0 +1,139 @@
+---
+title: "Regression and Other Stories: Ch 1.4 - 1.6"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) 
+library(rstanarm)
+set.seed(08252020)
+```
+
+
+### Building, interpreting, and checking regression models
+
+The authors present four cycles for an iterative data analysis process:
+
+\vfill
+
+1. Model Building: 
+
+\vfill
+
+2. Model Fitting: 
+
+\vfill
+
+3. Understanding model fits: 
+
+\vfill
+
+4. Criticism: 
+
+\vfill
+
+## Classical and Bayesian Inference
+
+Model fitting can be done in different ways... With any approach there are three considerations:
+
+\vfill
+
+
+\vfill
+
+
+
+\vfill
+
+
+
+\vfill
+
+\newpage
+
+#### Information
+
+Information pertains to what 
+
+\vfill
+
+#### Assumptions
+
+The authors discuss three basic assumptions that underlay a regression model
+
+
+\vfill
+
+
+\vfill
+
+
+\vfill
+
+
+
+\vfill
+
+#### Interpretation
+
+\vfill
+
+__Classical (or frequentist) Inference:__ This approach summarize the data 
+
+\vfill
+
+The results and interpretation are based long-run expectations of the methods that are correct on average (unbiased) and confidence intervals that contain the true parameter the appropriate percent of the time (coverage). 
+
+\vfill
+
+Classical methods do tend to be conservative, in that strong statements are not make with _weak_ data. 
+
+\vfill
+
+
+
+
+\newpage
+
+__Bayesian Inference:__ This approach summarize the data 
+
+
+\vfill
+
+Results and interpretations are probabilistic 
+
+
+\vfill
+
+Bayesian inference uses additional information which can potentially give more reasonable results (using the prior to regularize the model), 
+
+
+\vfill
+
+
+
+
+### Computing
+
+Classical methods tend to use least-squares estimation (or maximum likelihood). 
+
+```{r}
+beer <- read_csv('http://math.montana.edu/ahoegh/Data/Brazil_cerveja.csv')
+lm_beer <- lm(consumed ~ max_tmp, data = beer)
+summary(lm_beer)
+```
+
+\newpage
+
+The textbook authors (and your instructor), recommend using Bayesian inference for regression. 
+
+\vfill
+
+Furthermore, using Bayesian methods with _weakly informative_ prior information enables stable estimates and simulation based inference, *but also can result (or approximately result) in frequentist solutions.*
+
+\vfill
+
+```{r}
+stan_glm(consumed ~ max_tmp, data = beer, refresh = 0) %>% print()
+```
